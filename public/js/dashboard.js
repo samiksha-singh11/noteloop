@@ -10,8 +10,11 @@ if (user.role !== 'senior') {
 
 // Logout
 document.getElementById('logoutBtn').onclick = () => {
-  localStorage.removeItem('noteloop_user');
-  window.location.href = 'index.html';
+  showToast('Logged out. See you soon! 👋', 'info');
+  setTimeout(() => {
+    localStorage.removeItem('noteloop_user');
+    window.location.href = 'index.html';
+  }, 700);
 };
 
 // Tab switching
@@ -81,7 +84,9 @@ document.getElementById('uploadBtn')?.addEventListener('click', async () => {
     uploaded_by: user.id
   };
 
-  if (!payload.title || !payload.subject) return alert('Please fill all fields');
+  if (!payload.title || !payload.subject) {
+    return showToast('Please fill all fields', 'error');
+  }
 
   const res = await fetch('/api/upload-note', {
     method: 'POST',
@@ -91,11 +96,11 @@ document.getElementById('uploadBtn')?.addEventListener('click', async () => {
   const data = await res.json();
 
   if (data.success) {
-    alert('✅ Resource uploaded!');
+    showToast('Resource uploaded successfully!', 'success');
     document.getElementById('title').value = '';
     loadNotes();
   } else {
-    alert(data.message || 'Upload failed');
+    showToast(data.message || 'Upload failed', 'error');
   }
 });
 

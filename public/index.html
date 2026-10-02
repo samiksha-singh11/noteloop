@@ -14,20 +14,39 @@
     </div>
     <p class="subtitle">Senior-to-Junior Academic Sharing Platform</p>
 
-    <input type="email" id="email" placeholder="Enter your college email" />
-    <select id="role">
-      <option value="junior">🎓 Junior Student (Access Resources)</option>
-      <option value="senior">✍️ Senior Student (Upload Resources)</option>
-    </select>
+    <!-- Tab buttons -->
+    <div class="auth-tabs">
+      <button id="tabLogin" class="auth-tab active">Login</button>
+      <button id="tabSignup" class="auth-tab">Sign Up</button>
+    </div>
 
-    <button id="loginBtn">Login →</button>
+    <!-- LOGIN FORM -->
+    <div id="loginForm">
+      <input type="email" id="loginEmail" placeholder="Email (e.g. 2025xxx@ug.sharda.ac.in)" />
+      <input type="password" id="loginPassword" placeholder="Password" />
+
+      <button id="loginBtn">Login →</button>
+    </div>
+
+    <!-- SIGNUP FORM -->
+    <div id="signupForm" style="display:none;">
+      <input type="email" id="signupEmail" placeholder="Email (e.g. 2025xxx@ug.sharda.ac.in)" />
+      <input type="password" id="signupPassword" placeholder="Choose a password (min 6 chars)" />
+
+      <select id="signupRole">
+        <option value="junior">🎓 Junior Student (Access Resources)</option>
+        <option value="senior">✍️ Senior Student (Upload Resources)</option>
+      </select>
+
+      <button id="signupBtn">Create Account →</button>
+    </div>
 
     <p class="demo">
-      Demo accounts:<br>
-      <small>student@college.edu | senior@college.edu</small>
+      Use your <strong>Sharda University email</strong> or a Gmail account to sign up.
     </p>
   </div>
 
-  <script src="js/login.js"></script>
+  <script src="js/toast.js"></script>
+<script src="js/login.js"></script>
 </body>
 </html>

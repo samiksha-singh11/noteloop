@@ -100,3 +100,29 @@ body { background: #f4f6fb; color: #333; }
   display: block; margin-bottom: 6px; font-weight: 600;
   font-size: 13px; color: #444;
 }
+/* AUTH TABS (Login / Sign Up toggle) */
+.auth-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #e5e7eb;
+}
+.auth-tab {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 15px;
+  color: #888;
+  border-bottom: 3px solid transparent;
+  font-weight: 500;
+}
+.auth-tab.active {
+  color: #4f46e5;
+  border-bottom-color: #4f46e5;
+  font-weight: 700;
+}
+.auth-tab:hover:not(.active) {
+  color: #666;
+}
