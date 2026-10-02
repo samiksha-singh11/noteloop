@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NoteLoop · Dashboard</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <header class="navbar">
+    <h2>📚 NoteLoop</h2>
+    <div class="user-info">
+      <span id="userEmail"></span>
+      <button id="logoutBtn">Logout</button>
+    </div>
+  </header>
+
+  <nav class="tabs">
+    <button class="tab active" data-tab="browse">📖 Browse Resources</button>
+    <button class="tab" data-tab="upload" id="uploadTab">📤 Upload Resource</button>
+  </nav>
+
+  <!-- Browse Tab -->
+  <section id="browse" class="tab-content active">
+    <div class="filters">
+      <select id="filterSubject">
+        <option value="">All Subjects</option>
+        <option>CSE</option><option>ECE</option>
+        <option>ME</option><option>CE</option>
+      </select>
+      <select id="filterSemester">
+        <option value="">All Semesters</option>
+        <option>1</option><option>2</option><option>3</option>
+        <option>4</option><option>5</option><option>6</option>
+        <option>7</option><option>8</option>
+      </select>
+      <select id="filterType">
+        <option value="">All Types</option>
+        <option>Notes</option><option>PYQs</option>
+      </select>
+      <button id="applyFilters">Apply Filters</button>
+      <button id="resetFilters">Reset</button>
+    </div>
+
+    <div id="notesGrid" class="notes-grid"></div>
+  </section>
+
+  <!-- Upload Tab -->
+  <section id="upload" class="tab-content">
+    <div class="upload-card">
+      <h3>📤 Upload Academic Resource</h3>
+
+      <label>Title *</label>
+      <input type="text" id="title" placeholder="e.g., Data Structures Notes" />
+
+      <label>Subject *</label>
+      <select id="subject">
+        <option value="">Select Subject</option>
+        <option>CSE</option><option>ECE</option>
+        <option>ME</option><option>CE</option>
+      </select>
+
+      <label>Resource Type *</label>
+      <select id="type">
+        <option value="Notes">📘 Notes</option>
+        <option value="PYQs">📝 PYQs</option>
+      </select>
+
+      <label>Semester *</label>
+      <select id="semester">
+        <option value="1">Semester 1</option>
+        <option value="2">Semester 2</option>
+        <option value="3">Semester 3</option>
+        <option value="4">Semester 4</option>
+        <option value="5">Semester 5</option>
+        <option value="6">Semester 6</option>
+        <option value="7">Semester 7</option>
+        <option value="8">Semester 8</option>
+      </select>
+
+      <button id="uploadBtn">Upload Resource</button>
+    </div>
+  </section>
+
+  <script src="js/dashboard.js"></script>
+</body>
+</html>
