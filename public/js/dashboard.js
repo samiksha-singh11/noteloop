@@ -3,21 +3,18 @@ if (!user) window.location.href = 'index.html';
 
 document.getElementById('userEmail').textContent = user.email;
 
-// Hide upload tab for juniors
 if (user.role !== 'senior') {
   document.getElementById('uploadTab').style.display = 'none';
 }
 
-// Logout
 document.getElementById('logoutBtn').onclick = () => {
-  showToast('Logged out. See you soon! 👋', 'info');
+  showToast('Logged out. See you soon.', 'info');
   setTimeout(() => {
     localStorage.removeItem('noteloop_user');
     window.location.href = 'index.html';
   }, 700);
 };
 
-// Tab switching
 document.querySelectorAll('.tab').forEach(tab => {
   tab.onclick = () => {
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -37,24 +34,32 @@ async function loadNotes(params = {}) {
   grid.innerHTML = '';
 
   if (!data.notes.length) {
-    grid.innerHTML = '<p>No resources found. Seniors, be the first to upload! 🚀</p>';
+    grid.innerHTML = '<p style="color: var(--text-muted); grid-column: 1/-1; text-align: center; padding: 2rem;">No resources found. Be the first to upload.</p>';
     return;
   }
 
   data.notes.forEach(n => {
     const card = document.createElement('div');
     card.className = 'note-card';
+    
+    let downloadBtn = '';
+    if (n.file_path) {
+      downloadBtn = `<a href="${n.file_path}" target="_blank" class="download-link">View / Download File</a>`;
+    }
+
     card.innerHTML = `
       <h4>${n.title}</h4>
       <div class="tags">
-        <span class="tag type">📘 ${n.type}</span>
+        <span class="tag type">${n.branch}</span>
         <span class="tag subject">${n.subject}</span>
-        <span class="tag semester">📅 Semester ${n.semester}</span>
+        <span class="tag semester">Sem ${n.semester}</span>
+        <span class="tag type" style="background: #E8DCC8; color: #5D4037;">${n.type}</span>
       </div>
       <div class="meta">
-        <span>👤 ${n.uploader_email || 'Unknown'}</span>
-        <span>📅 ${new Date(n.created_at).toLocaleDateString()}</span>
+        <span>By: ${n.uploader_email || 'Unknown'}</span>
+        <span>${new Date(n.created_at).toLocaleDateString()}</span>
       </div>
+      ${downloadBtn}
     `;
     grid.appendChild(card);
   });
@@ -63,46 +68,101 @@ async function loadNotes(params = {}) {
 // Filters
 document.getElementById('applyFilters').onclick = () => {
   loadNotes({
-    subject:  document.getElementById('filterSubject').value,
+    branch:   document.getElementById('filterBranch').value,
+    subject:  document.getElementById('filterSubject').value.trim(),
     semester: document.getElementById('filterSemester').value,
     type:     document.getElementById('filterType').value
   });
 };
 
 document.getElementById('resetFilters').onclick = () => {
-  document.querySelectorAll('.filters select').forEach(s => s.value = '');
+  document.getElementById('filterBranch').value = '';
+  document.getElementById('filterSubject').value = '';
+  document.getElementById('filterSemester').value = '';
+  document.getElementById('filterType').value = '';
   loadNotes();
 };
 
-// Upload
-document.getElementById('uploadBtn')?.addEventListener('click', async () => {
-  const payload = {
-    title:       document.getElementById('title').value.trim(),
-    subject:     document.getElementById('subject').value,
-    type:        document.getElementById('type').value,
-    semester:    document.getElementById('semester').value,
-    uploaded_by: user.id
-  };
+// File Upload
+const fileDropZone = document.getElementById('fileDropZone');
+const fileInput = document.getElementById('fileInput');
+const fileNameDisplay = document.getElementById('fileName');
+let selectedFile = null;
 
-  if (!payload.title || !payload.subject) {
-    return showToast('Please fill all fields', 'error');
-  }
+fileDropZone.addEventListener('click', () => fileInput.click());
 
-  const res = await fetch('/api/upload-note', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
-  });
-  const data = await res.json();
-
-  if (data.success) {
-    showToast('Resource uploaded successfully!', 'success');
-    document.getElementById('title').value = '';
-    loadNotes();
-  } else {
-    showToast(data.message || 'Upload failed', 'error');
+fileInput.addEventListener('change', (e) => {
+  if (e.target.files.length > 0) {
+    selectedFile = e.target.files[0];
+    fileNameDisplay.textContent = `Selected: ${selectedFile.name}`;
   }
 });
 
-// Initial load
+fileDropZone.addEventListener('dragover', (e) => {
+  e.preventDefault();
+  fileDropZone.classList.add('dragover');
+});
+
+fileDropZone.addEventListener('dragleave', () => {
+  fileDropZone.classList.remove('dragover');
+});
+
+fileDropZone.addEventListener('drop', (e) => {
+  e.preventDefault();
+  fileDropZone.classList.remove('dragover');
+  if (e.dataTransfer.files.length > 0) {
+    selectedFile = e.dataTransfer.files[0];
+    fileInput.files = e.dataTransfer.files;
+    fileNameDisplay.textContent = `Selected: ${selectedFile.name}`;
+  }
+});
+
+document.getElementById('uploadBtn')?.addEventListener('click', async () => {
+  const branch = document.getElementById('branch').value;
+  const subject = document.getElementById('subject').value.trim();
+  const title = document.getElementById('title').value.trim();
+  const type = document.getElementById('type').value;
+  const semester = document.getElementById('semester').value;
+
+  if (!branch || !subject || !title) {
+    return showToast('Please fill all text fields', 'error');
+  }
+  if (!selectedFile) {
+    return showToast('Please select a file to upload', 'error');
+  }
+
+  const formData = new FormData();
+  formData.append('branch', branch);
+  formData.append('subject', subject);
+  formData.append('title', title);
+  formData.append('type', type);
+  formData.append('semester', semester);
+  formData.append('uploaded_by', user.id);
+  formData.append('file', selectedFile);
+
+  try {
+    const res = await fetch('/api/upload-note', {
+      method: 'POST',
+      body: formData
+    });
+    
+    const data = await res.json();
+
+    if (data.success) {
+      showToast('Resource uploaded successfully!', 'success');
+      document.getElementById('subject').value = '';
+      document.getElementById('title').value = '';
+      fileInput.value = '';
+      selectedFile = null;
+      fileNameDisplay.textContent = '';
+      loadNotes();
+    } else {
+      showToast(data.message || 'Upload failed', 'error');
+    }
+  } catch (err) {
+    console.error(err);
+    showToast('Server error during upload', 'error');
+  }
+});
+
 loadNotes();

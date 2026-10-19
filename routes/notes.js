@@ -1,10 +1,37 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../config/db');
+const multer = require('multer');
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const cloudinary = require('cloudinary').v2;
+require('dotenv').config();
 
-// GET /api/notes  (with optional filters)
+// 1. Configure Cloudinary (using your .env variables)
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
+});
+
+// 2. Configure Multer to use Cloudinary Storage
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'noteloop_files', // Folder name inside Cloudinary
+    resource_type: 'auto',    // Automatically detect file type
+    allowed_formats: ['pdf', 'doc', 'docx', 'ppt', 'pptx', 'txt']
+  }
+});
+
+const upload = multer({ storage: storage });
+
+// ==========================================
+// 3. Routes
+// ==========================================
+
+// GET /api/notes (Fetch all notes with optional filters)
 router.get('/notes', async (req, res) => {
-  const { subject, semester, type } = req.query;
+  const { branch, subject, semester, type } = req.query;
 
   let sql = `
     SELECT n.*, u.email AS uploader_email
@@ -14,6 +41,7 @@ router.get('/notes', async (req, res) => {
   `;
   const params = [];
 
+  if (branch)   { sql += ' AND n.branch = ?';    params.push(branch); }
   if (subject)  { sql += ' AND n.subject = ?';   params.push(subject); }
   if (semester) { sql += ' AND n.semester = ?';  params.push(semester); }
   if (type)     { sql += ' AND n.type = ?';      params.push(type); }
@@ -29,27 +57,37 @@ router.get('/notes', async (req, res) => {
   }
 });
 
-// POST /api/upload-note  (senior only)
-router.post('/upload-note', async (req, res) => {
-  const { title, subject, type, semester, uploaded_by } = req.body;
+// POST /api/upload-note (Upload a new file and save details)
+router.post('/upload-note', upload.single('file'), async (req, res) => {
+  const { branch, subject, title, type, semester, uploaded_by } = req.body;
 
-  if (!title || !subject || !type || !semester || !uploaded_by) {
-    return res.status(400).json({ success: false, message: 'All fields required' });
+  // Basic validation
+  if (!branch || !subject || !title || !type || !semester || !uploaded_by) {
+    return res.status(400).json({ success: false, message: 'All text fields required' });
+  }
+
+  if (!req.file) {
+    return res.status(400).json({ success: false, message: 'Please upload a file' });
   }
 
   try {
+    // Check if the user is a senior
     const [userRows] = await db.query('SELECT role FROM users WHERE id = ?', [uploaded_by]);
     if (userRows.length === 0 || userRows[0].role !== 'senior') {
       return res.status(403).json({ success: false, message: 'Only seniors can upload' });
     }
 
+    // Cloudinary provides the secure URL in req.file.path
+    const fileUrl = req.file.path;
+
+    // Insert into database
     const [result] = await db.query(
-      `INSERT INTO notes (title, subject, type, semester, uploaded_by)
-       VALUES (?, ?, ?, ?, ?)`,
-      [title, subject, type, semester, uploaded_by]
+      `INSERT INTO notes (branch, subject, title, type, semester, file_path, uploaded_by)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      [branch, subject, title, type, semester, fileUrl, uploaded_by]
     );
 
-    res.json({ success: true, id: result.insertId });
+    res.json({ success: true, id: result.insertId, url: fileUrl });
   } catch (err) {
     console.error(err);
     res.status(500).json({ success: false, message: 'Server error' });

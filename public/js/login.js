@@ -1,24 +1,31 @@
-// ===== Tab Switching =====
-const tabLogin = document.getElementById('tabLogin');
-const tabSignup = document.getElementById('tabSignup');
-const loginForm = document.getElementById('loginForm');
-const signupForm = document.getElementById('signupForm');
+// ==========================================
+// 1. Handle Enter Key (Email -> Password -> Submit)
+// ==========================================
+document.getElementById('loginEmail').addEventListener('keypress', function (e) {
+  if (e.key === 'Enter') {
+    e.preventDefault(); // Stop page reload
+    document.getElementById('loginPassword').focus();
+  }
+});
 
-tabLogin.onclick = () => {
-  tabLogin.classList.add('active');
-  tabSignup.classList.remove('active');
-  loginForm.style.display = 'block';
-  signupForm.style.display = 'none';
-};
+document.getElementById('loginPassword').addEventListener('keypress', function (e) {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    document.getElementById('loginBtn').click();
+  }
+});
 
-tabSignup.onclick = () => {
-  tabSignup.classList.add('active');
-  tabLogin.classList.remove('active');
-  signupForm.style.display = 'block';
-  loginForm.style.display = 'none';
-};
+// Sign up Enter keys
+document.getElementById('signupEmail').addEventListener('keypress', function (e) {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    document.getElementById('signupPassword').focus();
+  }
+});
 
-// ===== LOGIN =====
+// ==========================================
+// 2. LOGIN Action
+// ==========================================
 document.getElementById('loginBtn').addEventListener('click', async () => {
   const email = document.getElementById('loginEmail').value.trim();
   const password = document.getElementById('loginPassword').value;
@@ -48,7 +55,9 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
   }
 });
 
-// ===== SIGN UP =====
+// ==========================================
+// 3. SIGN UP Action
+// ==========================================
 document.getElementById('signupBtn').addEventListener('click', async () => {
   const email = document.getElementById('signupEmail').value.trim();
   const password = document.getElementById('signupPassword').value;
@@ -71,7 +80,7 @@ document.getElementById('signupBtn').addEventListener('click', async () => {
     const data = await res.json();
 
     if (data.success) {
-      showToast('Account created! Welcome to NoteLoop 🎉', 'success');
+      showToast('Account created! Welcome to NoteLoop', 'success');
       localStorage.setItem('noteloop_user', JSON.stringify(data.user));
       setTimeout(() => { window.location.href = 'dashboard.html'; }, 900);
     } else {

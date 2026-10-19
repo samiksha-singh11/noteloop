@@ -4,49 +4,153 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>NoteLoop · Login</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body class="login-body">
-  <div class="login-card">
-    <div class="logo">
-      <span class="logo-icon">📚</span>
-      <h1>NoteLoop</h1>
+
+  <div class="split-layout">
+    
+    <!-- LEFT SIDE -->
+    <div class="brand-side">
+      <div class="brand-header">
+        <svg class="brand-logo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+        </svg>
+        <span class="brand-name">noteloop</span>
+      </div>
+
+      <div class="brand-content">
+        <h1 class="editorial-headline">Good notes shouldn't stop with one semester.</h1>
+        <p class="brand-description">
+          Find course notes, previous-year questions, and useful resources shared by students who've been there before.
+        </p>
+        <ul class="benefits-list">
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+            Notes worth keeping
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+            PYQs in one place
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></svg>
+            Knowledge passed forward
+          </li>
+        </ul>
+      </div>
     </div>
-    <p class="subtitle">Senior-to-Junior Academic Sharing Platform</p>
 
-    <!-- Tab buttons -->
-    <div class="auth-tabs">
-      <button id="tabLogin" class="auth-tab active">Login</button>
-      <button id="tabSignup" class="auth-tab">Sign Up</button>
+    <!-- RIGHT SIDE -->
+    <div class="form-side">
+      <div class="auth-container">
+        
+        <div class="auth-header">
+          <h2 id="authTitle">Welcome back.</h2>
+          <p id="authSubtitle">Pick up where you left off.</p>
+        </div>
+
+        <!-- LOGIN FORM -->
+        <div id="loginForm" class="form-content">
+          <div class="input-group">
+            <label for="loginEmail">University email</label>
+            <input type="email" id="loginEmail" placeholder="you@university.edu" autocomplete="email" />
+          </div>
+          
+          <div class="input-group">
+            <label for="loginPassword">Password</label>
+            <div class="password-wrapper">
+              <input type="password" id="loginPassword" placeholder="Enter your password" autocomplete="current-password" />
+              <button type="button" class="toggle-password" onclick="togglePassword('loginPassword')">Show</button>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <a href="#" class="forgot-link">Forgot password?</a>
+          </div>
+
+          <button id="loginBtn" class="btn-primary">Log in &rarr;</button>
+          
+          <p class="switch-mode">
+            New to NoteLoop? <a href="#" id="switchToSignup">Create an account</a>
+          </p>
+        </div>
+
+        <!-- SIGNUP FORM -->
+        <div id="signupForm" class="form-content" style="display:none;">
+          <div class="input-group">
+            <label for="signupEmail">University email</label>
+            <input type="email" id="signupEmail" placeholder="you@university.edu" autocomplete="email" />
+          </div>
+
+          <div class="input-group">
+            <label for="signupPassword">Create password</label>
+            <div class="password-wrapper">
+              <input type="password" id="signupPassword" placeholder="Min. 6 characters" autocomplete="new-password" />
+              <button type="button" class="toggle-password" onclick="togglePassword('signupPassword')">Show</button>
+            </div>
+          </div>
+
+          <div class="input-group">
+            <label for="signupRole">I am a</label>
+            <select id="signupRole">
+              <option value="junior">Junior Student (Access Resources)</option>
+              <option value="senior">Senior Student (Upload Resources)</option>
+            </select>
+          </div>
+
+          <button id="signupBtn" class="btn-primary">Create account</button>
+
+          <p class="switch-mode">
+            Already have an account? <a href="#" id="switchToLogin">Log in</a>
+          </p>
+        </div>
+
+      </div>
     </div>
 
-    <!-- LOGIN FORM -->
-    <div id="loginForm">
-      <input type="email" id="loginEmail" placeholder="Email (e.g. 2025xxx@ug.sharda.ac.in)" />
-      <input type="password" id="loginPassword" placeholder="Password" />
-
-      <button id="loginBtn">Login →</button>
-    </div>
-
-    <!-- SIGNUP FORM -->
-    <div id="signupForm" style="display:none;">
-      <input type="email" id="signupEmail" placeholder="Email (e.g. 2025xxx@ug.sharda.ac.in)" />
-      <input type="password" id="signupPassword" placeholder="Choose a password (min 6 chars)" />
-
-      <select id="signupRole">
-        <option value="junior">🎓 Junior Student (Access Resources)</option>
-        <option value="senior">✍️ Senior Student (Upload Resources)</option>
-      </select>
-
-      <button id="signupBtn">Create Account →</button>
-    </div>
-
-    <p class="demo">
-      Use your <strong>Sharda University email</strong> or a Gmail account to sign up.
-    </p>
   </div>
 
+  <script>
+    // UI Toggling Logic
+    const loginForm = document.getElementById('loginForm');
+    const signupForm = document.getElementById('signupForm');
+    const authTitle = document.getElementById('authTitle');
+    const authSubtitle = document.getElementById('authSubtitle');
+    
+    function togglePassword(inputId) {
+      const input = document.getElementById(inputId);
+      const btn = input.nextElementSibling;
+      if (input.type === 'password') {
+        input.type = 'text';
+        btn.textContent = 'Hide';
+      } else {
+        input.type = 'password';
+        btn.textContent = 'Show';
+      }
+    }
+
+    document.getElementById('switchToSignup').addEventListener('click', (e) => {
+      e.preventDefault();
+      loginForm.style.display = 'none';
+      signupForm.style.display = 'block';
+      authTitle.textContent = 'Your next semester starts here.';
+      authSubtitle.textContent = "Join your university's learning community.";
+    });
+
+    document.getElementById('switchToLogin').addEventListener('click', (e) => {
+      e.preventDefault();
+      signupForm.style.display = 'none';
+      loginForm.style.display = 'block';
+      authTitle.textContent = 'Welcome back.';
+      authSubtitle.textContent = 'Pick up where you left off.';
+    });
+  </script>
   <script src="js/toast.js"></script>
-<script src="js/login.js"></script>
+  <script src="js/login.js"></script>
 </body>
 </html>
