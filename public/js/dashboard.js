@@ -161,7 +161,8 @@ document.getElementById('uploadBtn')?.addEventListener('click', async () => {
     }
   } catch (err) {
     console.error(err);
-    showToast('Server error during upload', 'error');
+    // This handles the Cloudinary format rejection gracefully
+    showToast('Invalid file type! Please upload PDF, DOC, PPT, or TXT.', 'error');
   }
 });
 
