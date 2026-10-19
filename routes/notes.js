@@ -13,13 +13,20 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
-// 2. Configure Multer to use Cloudinary Storage
+// 2. Configure Multer to use Cloudinary Storage (Fixed for DOCX/PPTX)
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
-  params: {
-    folder: 'noteloop_files', // Folder name inside Cloudinary
-    resource_type: 'auto',    // Automatically detect file type
-    allowed_formats: ['pdf', 'doc', 'docx', 'ppt', 'pptx', 'txt']
+  params: async (req, file) => {
+    let ext = file.originalname.split('.').pop().toLowerCase();
+    // Cloudinary sometimes rejects 'docx' and 'pptx' in auto mode, so we normalize them
+    let format = ext === 'docx' ? 'doc' : ext === 'pptx' ? 'ppt' : ext; 
+    
+    return {
+      folder: 'noteloop_files',
+      resource_type: 'auto',
+      format: format,
+      allowed_formats: ['pdf', 'doc', 'ppt', 'txt']
+    };
   }
 });
 
