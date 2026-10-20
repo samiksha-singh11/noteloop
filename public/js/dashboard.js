@@ -47,6 +47,12 @@ async function loadNotes(params = {}) {
       downloadBtn = `<a href="${n.file_path}" target="_blank" class="download-link">View / Download File</a>`;
     }
 
+    // Show delete button ONLY if the logged-in user uploaded this note
+    let deleteBtn = '';
+    if (user.id === n.uploaded_by) {
+      deleteBtn = `<button class="delete-btn" onclick="deleteNote(${n.id})">Delete Resource</button>`;
+    }
+
     card.innerHTML = `
       <h4>${n.title}</h4>
       <div class="tags">
@@ -60,6 +66,7 @@ async function loadNotes(params = {}) {
         <span>${new Date(n.created_at).toLocaleDateString()}</span>
       </div>
       ${downloadBtn}
+      ${deleteBtn}
     `;
     grid.appendChild(card);
   });
@@ -83,7 +90,7 @@ document.getElementById('resetFilters').onclick = () => {
   loadNotes();
 };
 
-// File Upload
+// File Upload Logic
 const fileDropZone = document.getElementById('fileDropZone');
 const fileInput = document.getElementById('fileInput');
 const fileNameDisplay = document.getElementById('fileName');
@@ -161,9 +168,32 @@ document.getElementById('uploadBtn')?.addEventListener('click', async () => {
     }
   } catch (err) {
     console.error(err);
-    // This handles the Cloudinary format rejection gracefully
     showToast('Invalid file type! Please upload PDF, DOC, PPT, or TXT.', 'error');
   }
 });
+
+// Delete Function
+async function deleteNote(id) {
+  if (!confirm('Are you sure you want to delete this resource? This cannot be undone.')) return;
+
+  try {
+    const res = await fetch(`/api/notes/${id}`, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ uploaded_by: user.id })
+    });
+    
+    const data = await res.json();
+    if (data.success) {
+      showToast('Resource deleted.', 'success');
+      loadNotes();
+    } else {
+      showToast(data.message || 'Delete failed', 'error');
+    }
+  } catch (err) {
+    console.error(err);
+    showToast('Server error during delete', 'error');
+  }
+}
 
 loadNotes();

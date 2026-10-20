@@ -344,7 +344,8 @@ body {
   flex-wrap: wrap;
 }
 
-.filters select {
+.filters select,
+.filters input {
   padding: 0.6rem 1rem;
   border: 1px solid var(--border-soft);
   border-radius: 6px;
@@ -422,7 +423,7 @@ body {
   color: var(--text-muted);
   padding-top: 1rem;
   border-top: 1px dashed var(--border-soft);
-  margin-top: auto; /* Pushes meta to bottom */
+  margin-top: auto;
 }
 
 .download-link {
@@ -443,6 +444,26 @@ body {
 .download-link:hover {
   background-color: var(--bg-ivory);
   border-color: var(--text-muted);
+}
+
+/* Delete Button Style */
+.delete-btn {
+  width: 100%;
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+  background-color: transparent;
+  border: 1px solid #e57373;
+  color: #e57373;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.delete-btn:hover {
+  background-color: #e57373;
+  color: white;
 }
 
 .upload-card {
