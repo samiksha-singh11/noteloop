@@ -13,17 +13,22 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
-// 2. Configure Multer (Forced 'raw' to fix PDF ACL issues)
+// 2. Configure Multer
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: async (req, file) => {
     let ext = file.originalname.split('.').pop().toLowerCase();
     let format = ext === 'docx' ? 'doc' : ext === 'pptx' ? 'ppt' : ext;
     
+    // Clean up the filename
+    let baseName = file.originalname.split('.')[0].replace(/[^a-zA-Z0-9]/g, '_');
+    
     return {
       folder: 'noteloop_files',
-      resource_type: 'raw', // <--- This fixes the broken PDF links
+      // 🔥 THE FIX: Change 'raw' back to 'auto' or 'image' so Cloudinary allows viewing
+      resource_type: 'image', 
       format: format,
+      public_id: baseName + '_' + Date.now(), 
       allowed_formats: ['pdf', 'doc', 'ppt', 'txt']
     };
   }
@@ -117,11 +122,9 @@ router.delete('/notes/:id', async (req, res) => {
       const fileName = urlParts[urlParts.length - 1]; 
       const publicId = 'noteloop_files/' + fileName.split('.')[0];
       
-      // Cloudinary requires 'raw' for PDFs/Docs
-      const resourceType = note.file_path.includes('/raw/upload/') ? 'raw' : 'image';
-      
+      // Since we are now using 'image', we delete it as an image
       try {
-        await cloudinary.uploader.destroy(publicId, { resource_type: resourceType });
+        await cloudinary.uploader.destroy(publicId, { resource_type: 'image' });
       } catch (cloudErr) {
         console.error("Cloudinary delete error (ignored):", cloudErr);
       }

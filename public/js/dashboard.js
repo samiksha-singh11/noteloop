@@ -42,9 +42,14 @@ async function loadNotes(params = {}) {
     const card = document.createElement('div');
     card.className = 'note-card';
     
-    let downloadBtn = '';
+    let viewBtn = '';
     if (n.file_path) {
-      downloadBtn = `<a href="${n.file_path}" target="_blank" class="download-link">View / Download File</a>`;
+      // Force Cloudinary to serve the file as a viewable PDF in the browser
+      let viewLink = n.file_path;
+      if (viewLink.includes('res.cloudinary.com')) {
+          viewLink = viewLink.replace('/upload/', '/upload/fl_attachment:false/');
+      }
+      viewBtn = `<a href="${viewLink}" target="_blank" class="download-link">View File</a>`;
     }
 
     // Show delete button ONLY if the logged-in user uploaded this note
@@ -65,7 +70,7 @@ async function loadNotes(params = {}) {
         <span>By: ${n.uploader_email || 'Unknown'}</span>
         <span>${new Date(n.created_at).toLocaleDateString()}</span>
       </div>
-      ${downloadBtn}
+      ${viewBtn}
       ${deleteBtn}
     `;
     grid.appendChild(card);
