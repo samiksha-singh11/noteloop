@@ -23,7 +23,7 @@ const storage = new CloudinaryStorage({
     
     return {
       folder: 'noteloop_files',
-      resource_type: 'auto',
+      resource_type: 'raw',
       format: format,
       allowed_formats: ['pdf', 'doc', 'ppt', 'txt']
     };
