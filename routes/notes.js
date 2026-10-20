@@ -26,7 +26,7 @@ const storage = new CloudinaryStorage({
     return {
       folder: 'noteloop_files',
       // 🔥 THE FIX: Change 'raw' back to 'auto' or 'image' so Cloudinary allows viewing
-      resource_type: 'image', 
+      resource_type: 'auto', 
       format: format,
       public_id: baseName + '_' + Date.now(), 
       allowed_formats: ['pdf', 'doc', 'ppt', 'txt']

@@ -44,12 +44,8 @@ async function loadNotes(params = {}) {
     
     let viewBtn = '';
     if (n.file_path) {
-      // Force Cloudinary to serve the file as a viewable PDF in the browser
-      let viewLink = n.file_path;
-      if (viewLink.includes('res.cloudinary.com')) {
-          viewLink = viewLink.replace('/upload/', '/upload/fl_attachment:false/');
-      }
-      viewBtn = `<a href="${viewLink}" target="_blank" class="download-link">View File</a>`;
+      // We use the data attribute so we can trigger a JS function instead of a direct link
+      viewBtn = `<button onclick="viewFile('${n.file_path}')" class="download-link" style="border: none; cursor: pointer; width: 100%;">View File</button>`;
     }
 
     // Show delete button ONLY if the logged-in user uploaded this note
@@ -76,6 +72,24 @@ async function loadNotes(params = {}) {
     grid.appendChild(card);
   });
 }
+
+// This function forces the PDF to open in a new tab by wrapping it in an HTML page
+window.viewFile = function(url) {
+    // Clean the URL to make sure it's direct
+    let cleanUrl = url.replace('/upload/fl_attachment:false/', '/upload/');
+    
+    // We create a simple HTML page with an iframe/embed tag and open it
+    const newWindow = window.open("", "_blank");
+    newWindow.document.write(`
+        <html>
+            <head><title>Viewing File</title></head>
+            <body style="margin:0; padding:0; height:100vh;">
+                <iframe src="${cleanUrl}" style="width:100%; height:100%; border:none;"></iframe>
+            </body>
+        </html>
+    `);
+    newWindow.document.close();
+};
 
 // Filters
 document.getElementById('applyFilters').onclick = () => {
