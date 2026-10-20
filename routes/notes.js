@@ -1,220 +1,138 @@
-const user = JSON.parse(localStorage.getItem('noteloop_user'));
-if (!user) window.location.href = 'index.html';
+const express = require('express');
+const router = express.Router();
+const db = require('../config/db');
+const multer = require('multer');
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const cloudinary = require('cloudinary').v2;
+const path = require('path');
+require('dotenv').config();
 
-document.getElementById('userEmail').textContent = user.email;
-
-if (user.role !== 'senior') {
-  document.getElementById('uploadTab').style.display = 'none';
-}
-
-document.getElementById('logoutBtn').onclick = () => {
-  showToast('Logged out. See you soon.', 'info');
-  setTimeout(() => {
-    localStorage.removeItem('noteloop_user');
-    window.location.href = 'index.html';
-  }, 700);
-};
-
-document.querySelectorAll('.tab').forEach(tab => {
-  tab.onclick = () => {
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-    tab.classList.add('active');
-    document.getElementById(tab.dataset.tab).classList.add('active');
-  };
+// 1. Configure Cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
-// Load notes
-async function loadNotes(params = {}) {
-  const query = new URLSearchParams(params).toString();
-  const res = await fetch(`/api/notes?${query}`);
-  const data = await res.json();
+// 2. Configure Multer (Accepts EVERYTHING)
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: async (req, file) => {
+    const ext = path.extname(file.originalname).toLowerCase().replace('.', '');
+    const isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext);
+    const baseName = path.basename(file.originalname, path.extname(file.originalname)).replace(/[^a-zA-Z0-9]/g, '_');
 
-  const grid = document.getElementById('notesGrid');
-  grid.innerHTML = '';
+    return {
+      folder: 'noteloop_files',
+      resource_type: isImage ? 'image' : 'raw', 
+      format: ext,
+      public_id: baseName + '_' + Date.now() + '.' + ext
+    };
+  }
+});
 
-  if (!data.notes.length) {
-    grid.innerHTML = '<p style="color: var(--text-muted); grid-column: 1/-1; text-align: center; padding: 2rem;">No resources found. Be the first to upload.</p>';
-    return;
+const upload = multer({ storage: storage });
+
+// ==========================================
+// 3. Routes
+// ==========================================
+
+// GET /api/notes
+router.get('/notes', async (req, res) => {
+  const { branch, subject, semester, type } = req.query;
+
+  let sql = `
+    SELECT n.*, u.email AS uploader_email
+    FROM notes n
+    LEFT JOIN users u ON n.uploaded_by = u.id
+    WHERE 1=1
+  `;
+  const params = [];
+
+  if (branch)   { sql += ' AND n.branch = ?';    params.push(branch); }
+  if (subject)  { sql += ' AND n.subject = ?';   params.push(subject); }
+  if (semester) { sql += ' AND n.semester = ?';  params.push(semester); }
+  if (type)     { sql += ' AND n.type = ?';      params.push(type); }
+
+  sql += ' ORDER BY n.created_at DESC';
+
+  try {
+    const [rows] = await db.query(sql, params);
+    res.json({ success: true, notes: rows });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// POST /api/upload-note
+router.post('/upload-note', upload.single('file'), async (req, res) => {
+  const { branch, subject, title, type, semester, uploaded_by } = req.body;
+
+  if (!branch || !subject || !title || !type || !semester || !uploaded_by) {
+    return res.status(400).json({ success: false, message: 'All text fields required' });
+  }
+  if (!req.file) {
+    return res.status(400).json({ success: false, message: 'Please upload a file' });
   }
 
-  data.notes.forEach(n => {
-    const card = document.createElement('div');
-    card.className = 'note-card';
-    
-    let actionBtn = '';
-    if (n.file_path) {
-      const ext = n.file_path.split('.').pop().toLowerCase();
+  try {
+    const [userRows] = await db.query('SELECT role FROM users WHERE id = ?', [uploaded_by]);
+    if (userRows.length === 0 || userRows[0].role !== 'senior') {
+      return res.status(403).json({ success: false, message: 'Only seniors can upload' });
+    }
+
+    const fileUrl = req.file.path;
+
+    const [result] = await db.query(
+      `INSERT INTO notes (branch, subject, title, type, semester, file_path, uploaded_by)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      [branch, subject, title, type, semester, fileUrl, uploaded_by]
+    );
+
+    res.json({ success: true, id: result.insertId, url: fileUrl });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// DELETE /api/notes/:id
+router.delete('/notes/:id', async (req, res) => {
+  const noteId = req.params.id;
+  const { uploaded_by } = req.body;
+
+  try {
+    const [rows] = await db.query('SELECT * FROM notes WHERE id = ?', [noteId]);
+    if (rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'Note not found' });
+    }
+
+    const note = rows[0];
+
+    if (note.uploaded_by !== parseInt(uploaded_by)) {
+      return res.status(403).json({ success: false, message: 'You can only delete your own notes' });
+    }
+
+    if (note.file_path) {
+      const urlParts = note.file_path.split('/');
+      const fileNameWithExt = urlParts[urlParts.length - 1]; 
+      const publicId = 'noteloop_files/' + fileNameWithExt;
+      const resourceType = note.file_path.includes('/image/upload/') ? 'image' : 'raw';
       
-      if (['pdf', 'txt', 'jpg', 'jpeg', 'png'].includes(ext)) {
-        // VIEWABLE FILES
-        actionBtn = `<button onclick="viewFile('${n.file_path}')" class="download-link" style="border: none; cursor: pointer; width: 100%;">View File</button>`;
-      } else {
-        // DOWNLOADABLE FILES (DOCX, PPTX)
-        actionBtn = `<a href="${n.file_path}" target="_blank" class="download-link">Download File</a>`;
+      try {
+        await cloudinary.uploader.destroy(publicId, { resource_type: resourceType });
+      } catch (cloudErr) {
+        console.error("Cloudinary delete error (ignored):", cloudErr);
       }
     }
 
-    let deleteBtn = '';
-    if (user.id === n.uploaded_by) {
-      deleteBtn = `<button class="delete-btn" onclick="deleteNote(${n.id})">Delete Resource</button>`;
-    }
-
-    card.innerHTML = `
-      <h4>${n.title}</h4>
-      <div class="tags">
-        <span class="tag type">${n.branch}</span>
-        <span class="tag subject">${n.subject}</span>
-        <span class="tag semester">Sem ${n.semester}</span>
-        <span class="tag type" style="background: #E8DCC8; color: #5D4037;">${n.type}</span>
-      </div>
-      <div class="meta">
-        <span>By: ${n.uploader_email || 'Unknown'}</span>
-        <span>${new Date(n.created_at).toLocaleDateString()}</span>
-      </div>
-      ${actionBtn}
-      ${deleteBtn}
-    `;
-    grid.appendChild(card);
-  });
-}
-
-// View Function for PDFs, TXT, and Images
-window.viewFile = function(url) {
-    const newWindow = window.open("", "_blank");
-    newWindow.document.write(`
-        <html>
-            <head><title>Viewing File</title></head>
-            <body style="margin:0; padding:0; height:100vh;">
-                <iframe src="${url}" style="width:100%; height:100%; border:none;"></iframe>
-            </body>
-        </html>
-    `);
-    newWindow.document.close();
-};
-
-// Filters
-document.getElementById('applyFilters').onclick = () => {
-  loadNotes({
-    branch:   document.getElementById('filterBranch').value,
-    subject:  document.getElementById('filterSubject').value.trim(),
-    semester: document.getElementById('filterSemester').value,
-    type:     document.getElementById('filterType').value
-  });
-};
-
-document.getElementById('resetFilters').onclick = () => {
-  document.getElementById('filterBranch').value = '';
-  document.getElementById('filterSubject').value = '';
-  document.getElementById('filterSemester').value = '';
-  document.getElementById('filterType').value = '';
-  loadNotes();
-};
-
-// File Upload Logic
-const fileDropZone = document.getElementById('fileDropZone');
-const fileInput = document.getElementById('fileInput');
-const fileNameDisplay = document.getElementById('fileName');
-let selectedFile = null;
-
-fileDropZone.addEventListener('click', () => fileInput.click());
-
-fileInput.addEventListener('change', (e) => {
-  if (e.target.files.length > 0) {
-    selectedFile = e.target.files[0];
-    fileNameDisplay.textContent = `Selected: ${selectedFile.name}`;
-  }
-});
-
-fileDropZone.addEventListener('dragover', (e) => {
-  e.preventDefault();
-  fileDropZone.classList.add('dragover');
-});
-
-fileDropZone.addEventListener('dragleave', () => {
-  fileDropZone.classList.remove('dragover');
-});
-
-fileDropZone.addEventListener('drop', (e) => {
-  e.preventDefault();
-  fileDropZone.classList.remove('dragover');
-  if (e.dataTransfer.files.length > 0) {
-    selectedFile = e.dataTransfer.files[0];
-    fileInput.files = e.dataTransfer.files;
-    fileNameDisplay.textContent = `Selected: ${selectedFile.name}`;
-  }
-});
-
-document.getElementById('uploadBtn')?.addEventListener('click', async () => {
-  const branch = document.getElementById('branch').value;
-  const subject = document.getElementById('subject').value.trim();
-  const title = document.getElementById('title').value.trim();
-  const type = document.getElementById('type').value;
-  const semester = document.getElementById('semester').value;
-
-  if (!branch || !subject || !title) {
-    return showToast('Please fill all text fields', 'error');
-  }
-  if (!selectedFile) {
-    return showToast('Please select a file to upload', 'error');
-  }
-
-  const formData = new FormData();
-  formData.append('branch', branch);
-  formData.append('subject', subject);
-  formData.append('title', title);
-  formData.append('type', type);
-  formData.append('semester', semester);
-  formData.append('uploaded_by', user.id);
-  formData.append('file', selectedFile);
-
-  try {
-    const res = await fetch('/api/upload-note', {
-      method: 'POST',
-      body: formData
-    });
-    
-    const data = await res.json();
-
-    if (data.success) {
-      showToast('Resource uploaded successfully!', 'success');
-      document.getElementById('subject').value = '';
-      document.getElementById('title').value = '';
-      fileInput.value = '';
-      selectedFile = null;
-      fileNameDisplay.textContent = '';
-      loadNotes();
-    } else {
-      showToast(data.message || 'Upload failed', 'error');
-    }
+    await db.query('DELETE FROM notes WHERE id = ?', [noteId]);
+    res.json({ success: true, message: 'Note deleted successfully' });
   } catch (err) {
     console.error(err);
-    showToast('Upload failed. Server error.', 'error');
+    res.status(500).json({ success: false, message: 'Server error' });
   }
 });
 
-// Delete Function
-async function deleteNote(id) {
-  if (!confirm('Are you sure you want to delete this resource? This cannot be undone.')) return;
-
-  try {
-    const res = await fetch(`/api/notes/${id}`, {
-      method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ uploaded_by: user.id })
-    });
-    
-    const data = await res.json();
-    if (data.success) {
-      showToast('Resource deleted.', 'success');
-      loadNotes();
-    } else {
-      showToast(data.message || 'Delete failed', 'error');
-    }
-  } catch (err) {
-    console.error(err);
-    showToast('Server error during delete', 'error');
-  }
-}
-
-loadNotes();
+module.exports = router;
