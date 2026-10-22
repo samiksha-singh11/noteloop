@@ -3,12 +3,13 @@ const router = express.Router();
 const bcrypt = require('bcrypt');
 const db = require('../config/db');
 
-// Allowed email domains
+// ==========================================
+// 1. Allowed Email Domains
+// ==========================================
 const ALLOWED_DOMAINS = [
   '@ug.sharda.ac.in',
   '@pg.sharda.ac.in',
-  '@sharda.ac.in',
-  '@gmail.com'       // for testing
+  '@sharda.ac.in'
 ];
 
 // Basic email format check
@@ -20,7 +21,9 @@ function isAllowedEmail(email) {
   return ALLOWED_DOMAINS.some(domain => lower.endsWith(domain));
 }
 
-// POST /api/signup  — create a new account
+// ==========================================
+// 2. POST /api/signup — create a new account
+// ==========================================
 router.post('/signup', async (req, res) => {
   const { email, password, role } = req.body;
 
@@ -31,7 +34,7 @@ router.post('/signup', async (req, res) => {
   if (!isAllowedEmail(email)) {
     return res.status(400).json({
       success: false,
-      message: 'Please use a valid Sharda University or Gmail email'
+      message: 'Please use a valid Sharda University email'
     });
   }
 
@@ -55,6 +58,7 @@ router.post('/signup', async (req, res) => {
       });
     }
 
+    // THIS IS WHERE THE PASSWORD IS HASHED
     const hash = await bcrypt.hash(password, 10);
 
     const [result] = await db.query(
@@ -72,7 +76,9 @@ router.post('/signup', async (req, res) => {
   }
 });
 
-// POST /api/login  — authenticate existing user
+// ==========================================
+// 3. POST /api/login — authenticate user
+// ==========================================
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
 
@@ -83,7 +89,7 @@ router.post('/login', async (req, res) => {
   if (!isAllowedEmail(email)) {
     return res.status(400).json({
       success: false,
-      message: 'Please use a valid Sharda University or Gmail email'
+      message: 'Please use a valid Sharda University email'
     });
   }
 
@@ -109,6 +115,7 @@ router.post('/login', async (req, res) => {
       });
     }
 
+    // THIS IS WHERE THE PASSWORD IS VERIFIED
     const match = await bcrypt.compare(password, user.password_hash);
     if (!match) {
       return res.status(401).json({ success: false, message: 'Incorrect password' });
