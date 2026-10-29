@@ -7,7 +7,19 @@ if (user.role !== 'senior') {
   document.getElementById('uploadTab').style.display = 'none';
 }
 
-// ===================== SIDEBAR =====================
+// ===================== THEME TOGGLE =====================
+const themeToggle = document.getElementById('themeToggle');
+const htmlEl = document.documentElement;
+const currentTheme = localStorage.getItem('theme') || 'light';
+htmlEl.setAttribute('data-theme', currentTheme);
+
+themeToggle.addEventListener('click', () => {
+  const newTheme = htmlEl.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+  htmlEl.setAttribute('data-theme', newTheme);
+  localStorage.setItem('theme', newTheme);
+});
+
+// ===================== SIDEBAR & NAVIGATION =====================
 const menuToggle = document.getElementById('menuToggle');
 const sidebar = document.getElementById('sidebar');
 const overlay = document.getElementById('sidebarOverlay');
@@ -22,17 +34,32 @@ function toggleSidebar() {
 menuToggle.addEventListener('click', toggleSidebar);
 overlay.addEventListener('click', toggleSidebar);
 
+// Function to switch pages
+function switchPage(targetId) {
+  sidebarLinks.forEach(l => l.classList.remove('active'));
+  pageSections.forEach(p => p.classList.remove('active'));
+  
+  // Find the link that matches the target and highlight it
+  const targetLink = document.querySelector(`.sidebar-link[data-target="${targetId}"]`);
+  if (targetLink) targetLink.classList.add('active');
+  
+  document.getElementById(targetId).classList.add('active');
+  if (window.innerWidth < 768) toggleSidebar();
+}
+
 sidebarLinks.forEach(link => {
   link.addEventListener('click', (e) => {
     e.preventDefault();
-    sidebarLinks.forEach(l => l.classList.remove('active'));
-    pageSections.forEach(p => p.classList.remove('active'));
-    link.classList.add('active');
-    document.getElementById(link.dataset.target).classList.add('active');
-    if (window.innerWidth < 768) toggleSidebar();
+    switchPage(link.dataset.target);
   });
 });
 
+// NEW: Home Button Logic
+document.getElementById('homeBtn').addEventListener('click', () => {
+  switchPage('browse');
+});
+
+// Logout
 document.getElementById('logoutBtn').onclick = () => {
   if(confirm('Are you sure you want to log out?')) {
     localStorage.removeItem('noteloop_user');
@@ -48,10 +75,7 @@ function renderSkeletons() {
     grid.innerHTML += `
       <div class="note-card skeleton">
         <div class="skeleton-title"></div>
-        <div class="skeleton-tags">
-          <span class="skeleton-tag"></span>
-          <span class="skeleton-tag"></span>
-        </div>
+        <div class="skeleton-tags"></div>
         <div class="skeleton-meta"></div>
         <div class="skeleton-btn"></div>
       </div>
@@ -60,27 +84,24 @@ function renderSkeletons() {
 }
 
 async function loadNotes(params = {}) {
-  renderSkeletons(); // Show loading state
+  renderSkeletons();
 
   const query = new URLSearchParams(params).toString();
   const res = await fetch(`/api/notes?${query}`);
   const data = await res.json();
 
   const grid = document.getElementById('notesGrid');
-  grid.innerHTML = ''; // Clear skeletons
+  grid.innerHTML = '';
 
   if (!data.notes.length) {
     const isSenior = user.role === 'senior';
     const title = isSenior ? "No resources here yet." : "No notes found.";
     const subtitle = isSenior 
-      ? "Be the first to share a note with your juniors!" 
+      ? "Be the first to share a note with your juniors." 
       : "Try adjusting your filters or check back later.";
 
     grid.innerHTML = `
       <div class="empty-state">
-        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
-        </svg>
         <h3>${title}</h3>
         <p>${subtitle}</p>
       </div>
@@ -100,13 +121,15 @@ async function loadNotes(params = {}) {
         actionBtn = `<a href="${n.file_path}" target="_blank" class="download-link">Download File</a>`;
       }
     }
-    let deleteBtn = user.id === n.uploaded_by ? `<button class="delete-btn" onclick="deleteNote(${n.id})">Delete Resource</button>` : '';
+    let deleteBtn = user.id === n.uploaded_by ? `<button class="delete-btn" onclick="deleteNote(${n.id})">Delete</button>` : '';
     
     card.innerHTML = `
       <h4>${n.title}</h4>
       <div class="tags">
-        <span class="tag">${n.branch}</span><span class="tag">${n.subject}</span>
-        <span class="tag">Sem ${n.semester}</span><span class="tag">${n.type}</span>
+        <span class="tag">${n.branch}</span>
+        <span class="tag">${n.subject}</span>
+        <span class="tag">Sem ${n.semester}</span>
+        <span class="tag">${n.type}</span>
       </div>
       <div class="meta">
         <span>By: ${n.uploader_email || 'Unknown'}</span>
@@ -118,6 +141,7 @@ async function loadNotes(params = {}) {
   });
 }
 
+// Filters
 document.getElementById('applyFilters').onclick = () => {
   loadNotes({
     branch: document.getElementById('filterBranch').value,
@@ -172,7 +196,7 @@ document.getElementById('uploadBtn')?.addEventListener('click', async () => {
       document.getElementById('title').value = '';
       fileInput.value = ''; fileNameDisplay.textContent = ''; selectedFile = null;
       loadNotes();
-      document.querySelector('.sidebar-link[data-target="browse"]').click();
+      switchPage('browse'); // Switch to home after upload
     } else {
       showToast(data.message || 'Upload failed', 'error');
     }
@@ -263,4 +287,5 @@ currSubject.addEventListener('change', () => {
   currUnits.style.display = 'flex';
 });
 
+// Initial load
 loadNotes();
