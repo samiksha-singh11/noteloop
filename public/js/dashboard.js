@@ -34,39 +34,57 @@ sidebarLinks.forEach(link => {
 });
 
 document.getElementById('logoutBtn').onclick = () => {
-  localStorage.removeItem('noteloop_user');
-  window.location.href = 'index.html';
+  if(confirm('Are you sure you want to log out?')) {
+    localStorage.removeItem('noteloop_user');
+    window.location.href = 'index.html';
+  }
 };
 
-// ===================== DARK MODE =====================
-const themeToggle = document.getElementById('themeToggle');
-const themeIcon = document.getElementById('themeIcon');
-const htmlEl = document.documentElement;
-const currentTheme = localStorage.getItem('theme') || 'light';
-
-const moonSVG = `<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>`;
-const sunSVG = `<circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>`;
-
-function setTheme(theme) {
-  htmlEl.setAttribute('data-theme', theme);
-  localStorage.setItem('theme', theme);
-  themeIcon.innerHTML = theme === 'light' ? moonSVG : sunSVG;
+// ===================== NOTES & SKELETONS =====================
+function renderSkeletons() {
+  const grid = document.getElementById('notesGrid');
+  grid.innerHTML = '';
+  for (let i = 0; i < 6; i++) {
+    grid.innerHTML += `
+      <div class="note-card skeleton">
+        <div class="skeleton-title"></div>
+        <div class="skeleton-tags">
+          <span class="skeleton-tag"></span>
+          <span class="skeleton-tag"></span>
+        </div>
+        <div class="skeleton-meta"></div>
+        <div class="skeleton-btn"></div>
+      </div>
+    `;
+  }
 }
-setTheme(currentTheme);
-themeToggle.addEventListener('click', () => {
-  setTheme(htmlEl.getAttribute('data-theme') === 'light' ? 'dark' : 'light');
-});
 
-// ===================== NOTES LOGIC =====================
 async function loadNotes(params = {}) {
+  renderSkeletons(); // Show loading state
+
   const query = new URLSearchParams(params).toString();
   const res = await fetch(`/api/notes?${query}`);
   const data = await res.json();
+
   const grid = document.getElementById('notesGrid');
-  grid.innerHTML = '';
+  grid.innerHTML = ''; // Clear skeletons
 
   if (!data.notes.length) {
-    grid.innerHTML = '<p style="color: var(--text-muted); text-align: center; padding: 2rem;">No resources found.</p>';
+    const isSenior = user.role === 'senior';
+    const title = isSenior ? "No resources here yet." : "No notes found.";
+    const subtitle = isSenior 
+      ? "Be the first to share a note with your juniors!" 
+      : "Try adjusting your filters or check back later.";
+
+    grid.innerHTML = `
+      <div class="empty-state">
+        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+        </svg>
+        <h3>${title}</h3>
+        <p>${subtitle}</p>
+      </div>
+    `;
     return;
   }
 
@@ -180,7 +198,7 @@ async function deleteNote(id) {
   } catch (err) { showToast('Server error during delete', 'error'); }
 }
 
-// ===================== CURRICULUM HUB LOGIC =====================
+// ===================== CURRICULUM HUB =====================
 const currBranch = document.getElementById('currBranch');
 const currSemester = document.getElementById('currSemester');
 const currSubject = document.getElementById('currSubject');

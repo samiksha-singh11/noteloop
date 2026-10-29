@@ -6,148 +6,132 @@
   <title>NoteLoop · Login</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body class="login-body">
 
-  <div class="split-layout">
-    
-    <!-- LEFT SIDE -->
-    <div class="brand-side">
-      <div class="brand-header">
-        <svg class="brand-logo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
-        </svg>
-        <span class="brand-name">noteloop</span>
-      </div>
-
-      <div class="brand-content">
-        <h1 class="editorial-headline">Good notes shouldn't stop with one semester.</h1>
-        <p class="brand-description">
-          Find course notes, previous-year questions, and useful resources shared by students who've been there before.
-        </p>
-        <ul class="benefits-list">
-          <li>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
-            Notes worth keeping
-          </li>
-          <li>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
-            PYQs in one place
-          </li>
-          <li>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></svg>
-            Knowledge passed forward
-          </li>
-        </ul>
-      </div>
-    </div>
-
-    <!-- RIGHT SIDE -->
-    <div class="form-side">
-      <div class="auth-container">
-        
-        <div class="auth-header">
-          <h2 id="authTitle">Welcome back.</h2>
-          <p id="authSubtitle">Pick up where you left off.</p>
-        </div>
-
-        <!-- LOGIN FORM -->
-        <div id="loginForm" class="form-content">
-          <div class="input-group">
-            <label for="loginEmail">University email</label>
-            <input type="email" id="loginEmail" placeholder="you@university.edu" autocomplete="email" />
-          </div>
-          
-          <div class="input-group">
-            <label for="loginPassword">Password</label>
-            <div class="password-wrapper">
-              <input type="password" id="loginPassword" placeholder="Enter your password" autocomplete="current-password" />
-              <button type="button" class="toggle-password" onclick="togglePassword('loginPassword')">Show</button>
-            </div>
-          </div>
-
-          <div class="form-actions">
-            <a href="#" class="forgot-link">Forgot password?</a>
-          </div>
-
-          <button id="loginBtn" class="btn-primary">Log in &rarr;</button>
-          
-          <p class="switch-mode">
-            New to NoteLoop? <a href="#" id="switchToSignup">Create an account</a>
-          </p>
-        </div>
-
-        <!-- SIGNUP FORM -->
-        <div id="signupForm" class="form-content" style="display:none;">
-          <div class="input-group">
-            <label for="signupEmail">University email</label>
-            <input type="email" id="signupEmail" placeholder="you@university.edu" autocomplete="email" />
-          </div>
-
-          <div class="input-group">
-            <label for="signupPassword">Create password</label>
-            <div class="password-wrapper">
-              <input type="password" id="signupPassword" placeholder="Min. 6 characters" autocomplete="new-password" />
-              <button type="button" class="toggle-password" onclick="togglePassword('signupPassword')">Show</button>
-            </div>
-          </div>
-
-          <div class="input-group">
-            <label for="signupRole">I am a</label>
-            <select id="signupRole">
-              <option value="junior">Junior Student (Access Resources)</option>
-              <option value="senior">Senior Student (Upload Resources)</option>
-            </select>
-          </div>
-
-          <button id="signupBtn" class="btn-primary">Create account</button>
-
-          <p class="switch-mode">
-            Already have an account? <a href="#" id="switchToLogin">Log in</a>
-          </p>
-        </div>
-
-      </div>
-    </div>
-
+  <!-- Theme Toggle -->
+  <div class="theme-toggle-wrapper">
+    <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme">
+      <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+      <svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+    </button>
   </div>
 
+  <main class="login-container">
+    <!-- Brand Mark -->
+    <div class="brand-mark">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+      </svg>
+      <span>noteloop</span>
+    </div>
+
+    <!-- Editorial Copy -->
+    <div class="editorial-header">
+      <h1>Knowledge moves forward.</h1>
+      <p>Notes, previous-year questions, and useful resources shared across semesters.</p>
+    </div>
+
+    <!-- Auth Form -->
+    <div class="auth-section">
+      <div class="auth-header">
+        <h2 id="authTitle">Welcome back.</h2>
+      </div>
+
+      <div id="loginForm" class="form-content">
+        <div class="input-group">
+          <label>University email</label>
+          <input type="email" id="loginEmail" placeholder="you@university.edu" autocomplete="email" />
+        </div>
+        <div class="input-group">
+          <label>Password</label>
+          <div class="password-wrapper">
+            <input type="password" id="loginPassword" placeholder="Enter your password" autocomplete="current-password" />
+            <button type="button" class="toggle-password" onclick="togglePassword('loginPassword')">Show</button>
+          </div>
+        </div>
+        <div class="form-actions">
+          <a href="#" class="forgot-link">Forgot password?</a>
+        </div>
+        <button id="loginBtn" class="btn-primary">Log in</button>
+        <p class="switch-mode">New to NoteLoop? <a href="#" id="switchToSignup">Create an account</a></p>
+      </div>
+
+      <div id="signupForm" class="form-content" style="display:none;">
+        <div class="input-group">
+          <label>University email</label>
+          <input type="email" id="signupEmail" placeholder="you@university.edu" autocomplete="email" />
+        </div>
+        <div class="input-group">
+          <label>Create password</label>
+          <div class="password-wrapper">
+            <input type="password" id="signupPassword" placeholder="Min. 6 characters" autocomplete="new-password" />
+            <button type="button" class="toggle-password" onclick="togglePassword('signupPassword')">Show</button>
+          </div>
+        </div>
+        <div class="input-group">
+          <label>I am a</label>
+          <select id="signupRole">
+            <option value="junior">Junior Student</option>
+            <option value="senior">Senior Student</option>
+          </select>
+        </div>
+        <button id="signupBtn" class="btn-primary">Create account</button>
+        <p class="switch-mode">Already have an account? <a href="#" id="switchToLogin">Log in</a></p>
+      </div>
+    </div>
+
+    <footer class="editorial-footer">
+      <span>© 2026 NoteLoop</span>
+      <span>An academic archive.</span>
+    </footer>
+  </main>
+
   <script>
-    // UI Toggling Logic
+    // Theme Toggle Logic
+    const themeToggle = document.getElementById('themeToggle');
+    const htmlEl = document.documentElement;
+    const currentTheme = localStorage.getItem('theme') || 'light';
+    htmlEl.setAttribute('data-theme', currentTheme);
+
+    themeToggle.addEventListener('click', () => {
+      const newTheme = htmlEl.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+      htmlEl.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+    });
+
+    // Form Logic
     const loginForm = document.getElementById('loginForm');
     const signupForm = document.getElementById('signupForm');
     const authTitle = document.getElementById('authTitle');
-    const authSubtitle = document.getElementById('authSubtitle');
     
     function togglePassword(inputId) {
       const input = document.getElementById(inputId);
       const btn = input.nextElementSibling;
-      if (input.type === 'password') {
-        input.type = 'text';
-        btn.textContent = 'Hide';
-      } else {
-        input.type = 'password';
-        btn.textContent = 'Show';
-      }
+      if (input.type === 'password') { input.type = 'text'; btn.textContent = 'Hide'; } 
+      else { input.type = 'password'; btn.textContent = 'Show'; }
     }
 
     document.getElementById('switchToSignup').addEventListener('click', (e) => {
       e.preventDefault();
-      loginForm.style.display = 'none';
-      signupForm.style.display = 'block';
-      authTitle.textContent = 'Your next semester starts here.';
-      authSubtitle.textContent = "Join your university's learning community.";
+      loginForm.style.display = 'none'; signupForm.style.display = 'block';
+      authTitle.textContent = 'Join your academic community.';
     });
 
     document.getElementById('switchToLogin').addEventListener('click', (e) => {
       e.preventDefault();
-      signupForm.style.display = 'none';
-      loginForm.style.display = 'block';
+      signupForm.style.display = 'none'; loginForm.style.display = 'block';
       authTitle.textContent = 'Welcome back.';
-      authSubtitle.textContent = 'Pick up where you left off.';
+    });
+
+    document.getElementById('loginEmail').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') { e.preventDefault(); document.getElementById('loginPassword').focus(); }
+    });
+    document.getElementById('loginPassword').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') { e.preventDefault(); document.getElementById('loginBtn').click(); }
     });
   </script>
   <script src="js/toast.js"></script>
