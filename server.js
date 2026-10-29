@@ -6,6 +6,7 @@ require('dotenv').config();
 
 const authRoutes = require('./routes/auth');
 const notesRoutes = require('./routes/notes');
+const syllabusRoutes = require('./routes/syllabus');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -21,7 +22,7 @@ app.get('/api/test', (req, res) => {
 
 app.use('/api', authRoutes);
 app.use('/api', notesRoutes);
-
+app.use('/api', syllabusRoutes);
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });

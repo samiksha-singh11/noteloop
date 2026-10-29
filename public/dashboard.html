@@ -9,103 +9,164 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css" />
 </head>
-<body>
+<body class="app-body">
 
-  <header class="navbar">
-    <div class="brand-header">
-      <svg class="brand-logo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
-      </svg>
-      <span class="brand-name">noteloop</span>
+  <!-- Top Navbar -->
+  <header class="top-navbar">
+    <div class="nav-left">
+      <button id="menuToggle" class="icon-btn">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+      </button>
+      <div class="brand-header">
+        <!-- UNIQUE NOTELOOP LOGO -->
+        <svg class="brand-logo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+        </svg>
+        <span class="brand-name">noteloop</span>
+      </div>
     </div>
-    <div class="user-info">
-      <span id="userEmail"></span>
-      <button id="logoutBtn">Log out</button>
+    <div class="nav-right">
+      <button id="themeToggle" class="icon-btn" title="Toggle Dark Mode">
+        <svg id="themeIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+        </svg>
+      </button>
+      <span id="userEmail" class="user-email"></span>
+      <button id="logoutBtn" class="btn-outline">Log out</button>
     </div>
   </header>
 
-  <nav class="tabs">
-    <button class="tab active" data-tab="browse">Browse Resources</button>
-    <button class="tab" data-tab="upload" id="uploadTab">Upload Resource</button>
-  </nav>
+  <!-- Sidebar Overlay -->
+  <div id="sidebarOverlay" class="sidebar-overlay"></div>
 
-  <!-- Browse Tab -->
-  <section id="browse" class="tab-content active">
-    <div class="filters">
-      <select id="filterBranch">
-        <option value="">All Branches</option>
-        <option>CSE</option><option>ECE</option>
-        <option>ME</option><option>CE</option>
-      </select>
-      <input type="text" id="filterSubject" placeholder="Search subject..." style="padding: 0.6rem 1rem; border: 1px solid var(--border-soft); border-radius: 6px; outline: none;">
-      <select id="filterSemester">
-        <option value="">All Semesters</option>
-        <option>1</option><option>2</option><option>3</option>
-        <option>4</option><option>5</option><option>6</option>
-        <option>7</option><option>8</option>
-      </select>
-      <select id="filterType">
-        <option value="">All Types</option>
-        <option>Notes</option><option>PYQs</option>
-      </select>
-      <button id="applyFilters">Apply Filters</button>
-      <button id="resetFilters">Reset</button>
-    </div>
+  <!-- Sidebar -->
+  <aside id="sidebar" class="sidebar">
+    <ul class="sidebar-menu">
+      <li>
+        <a href="#" class="sidebar-link active" data-target="browse">
+          <!-- Compass Icon (Unique, not a book) -->
+          <svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+          Browse Resources
+        </a>
+      </li>
+      <li>
+        <a href="#" class="sidebar-link" data-target="upload" id="uploadTab">
+          <!-- Cloud Upload Icon (Unique) -->
+          <svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 16l-4-4-4 4M12 12v9"></path><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"></path></svg>
+          Upload Resource
+        </a>
+      </li>
+      <li>
+        <a href="#" class="sidebar-link" data-target="curriculum">
+          <!-- Layers Icon (Unique) -->
+          <svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+          Curriculum Hub
+        </a>
+      </li>
+    </ul>
+  </aside>
 
-    <div id="notesGrid" class="notes-grid"></div>
-  </section>
-
-  <!-- Upload Tab -->
-  <section id="upload" class="tab-content">
-    <div class="upload-card">
-      <h3>Upload a Resource</h3>
-
-      <label>1. Branch</label>
-      <select id="branch">
-        <option value="">Select Branch</option>
-        <option>CSE</option><option>ECE</option>
-        <option>ME</option><option>CE</option>
-      </select>
-
-      <label>2. Subject Name</label>
-      <input type="text" id="subject" placeholder="e.g. Data Structures" />
-
-      <label>3. Title</label>
-      <input type="text" id="title" placeholder="e.g. Mid-Sem Notes" />
-
-      <label>4. Resource Type</label>
-      <select id="type">
-        <option value="Notes">Notes</option>
-        <option value="PYQs">PYQs</option>
-      </select>
-
-      <label>5. Semester</label>
-      <select id="semester">
-        <option value="1">Semester 1</option>
-        <option value="2">Semester 2</option>
-        <option value="3">Semester 3</option>
-        <option value="4">Semester 4</option>
-        <option value="5">Semester 5</option>
-        <option value="6">Semester 6</option>
-        <option value="7">Semester 7</option>
-        <option value="8">Semester 8</option>
-      </select>
-
-      <label>6. Upload File (PDF, DOC, PPT, TXT)</label>
-      <div class="file-drop-zone" id="fileDropZone">
-        <!-- Added accept attribute to restrict file picker -->
-        <input type="file" id="fileInput" accept=".pdf,.doc,.docx,.ppt,.pptx,.txt" />
-        <div class="file-drop-icon">&#128196;</div>
-        <div class="file-drop-text" id="fileDropText">
-          <strong>Click to browse</strong> or drag & drop
-        </div>
-        <div class="file-selected" id="fileName"></div>
+  <!-- Main Content -->
+  <main class="main-content">
+    
+    <!-- BROWSE TAB -->
+    <section id="browse" class="page-section active">
+      <div class="page-header">
+        <h2>Browse Resources</h2>
+        <p>Find notes and PYQs shared by seniors.</p>
+      </div>
+      
+      <div class="filters">
+        <select id="filterBranch">
+          <option value="">All Branches</option>
+          <option>CSE</option><option>ECE</option>
+          <option>ME</option><option>CE</option>
+        </select>
+        <input type="text" id="filterSubject" placeholder="Search subject..." />
+        <select id="filterSemester">
+          <option value="">All Semesters</option>
+          <option>1</option><option>2</option><option>3</option>
+          <option>4</option><option>5</option><option>6</option>
+          <option>7</option><option>8</option>
+        </select>
+        <select id="filterType">
+          <option value="">All Types</option>
+          <option>Notes</option><option>PYQs</option>
+        </select>
+        <button id="applyFilters" class="btn-primary">Apply Filters</button>
+        <button id="resetFilters" class="btn-secondary">Reset</button>
       </div>
 
-      <button id="uploadBtn">Upload Resource</button>
-    </div>
-  </section>
+      <div id="notesGrid" class="notes-grid"></div>
+    </section>
+
+    <!-- UPLOAD TAB -->
+    <section id="upload" class="page-section">
+      <div class="page-header">
+        <h2>Upload a Resource</h2>
+        <p>Share your notes with the junior community.</p>
+      </div>
+      
+      <div class="upload-card">
+        <label>1. Branch</label>
+        <select id="branch">
+          <option value="">Select Branch</option>
+          <option>CSE</option><option>ECE</option>
+          <option>ME</option><option>CE</option>
+        </select>
+
+        <label>2. Subject Name</label>
+        <input type="text" id="subject" placeholder="e.g. Data Structures" />
+
+        <label>3. Title</label>
+        <input type="text" id="title" placeholder="e.g. Mid-Sem Notes" />
+
+        <label>4. Resource Type</label>
+        <select id="type">
+          <option value="Notes">Notes</option>
+          <option value="PYQs">PYQs</option>
+        </select>
+
+        <label>5. Semester</label>
+        <select id="semester">
+          <option value="1">Semester 1</option>
+          <option value="2">Semester 2</option>
+          <option value="3">Semester 3</option>
+          <option value="4">Semester 4</option>
+          <option value="5">Semester 5</option>
+          <option value="6">Semester 6</option>
+          <option value="7">Semester 7</option>
+          <option value="8">Semester 8</option>
+        </select>
+
+        <label>6. Upload File (PDF, DOC, PPT, TXT)</label>
+        <div class="file-drop-zone" id="fileDropZone">
+          <input type="file" id="fileInput" accept=".pdf,.doc,.docx,.ppt,.pptx,.txt" />
+          <div class="file-drop-icon">
+            <!-- Upload Document Icon -->
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+          </div>
+          <div class="file-drop-text" id="fileDropText"><strong>Click to browse</strong> or drag & drop</div>
+          <div class="file-selected" id="fileName"></div>
+        </div>
+
+        <button id="uploadBtn" class="btn-primary">Upload Resource</button>
+      </div>
+    </section>
+
+    <!-- CURRICULUM HUB -->
+    <section id="curriculum" class="page-section">
+      <div class="page-header">
+        <h2>Curriculum Hub</h2>
+        <p>Your complete academic roadmap.</p>
+      </div>
+      <div class="placeholder-box">
+        <p>Select your Branch and Semester to view the syllabus (Coming in Step 3).</p>
+      </div>
+    </section>
+
+  </main>
 
   <script src="js/toast.js"></script>
   <script src="js/dashboard.js"></script>
