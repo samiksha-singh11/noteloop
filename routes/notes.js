@@ -14,7 +14,7 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
-// 2. Configure Multer (Accepts EVERYTHING)
+// 2. Configure Multer (Accepts all file types and keeps extensions)
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: async (req, file) => {
@@ -37,7 +37,7 @@ const upload = multer({ storage: storage });
 // 3. Routes
 // ==========================================
 
-// GET /api/notes
+// GET /api/notes (Case-Insensitive Search)
 router.get('/notes', async (req, res) => {
   const { branch, subject, semester, type } = req.query;
 
@@ -50,7 +50,8 @@ router.get('/notes', async (req, res) => {
   const params = [];
 
   if (branch)   { sql += ' AND n.branch = ?';    params.push(branch); }
-  if (subject)  { sql += ' AND n.subject = ?';   params.push(subject); }
+  // Using LIKE for case-insensitive partial matching
+  if (subject)  { sql += ' AND n.subject LIKE ?'; params.push(`%${subject}%`); }
   if (semester) { sql += ' AND n.semester = ?';  params.push(semester); }
   if (type)     { sql += ' AND n.type = ?';      params.push(type); }
 

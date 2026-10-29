@@ -18,7 +18,6 @@
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
       </button>
       <div class="brand-header">
-        <!-- UNIQUE NOTELOOP LOGO -->
         <svg class="brand-logo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
           <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
           <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
@@ -37,29 +36,24 @@
     </div>
   </header>
 
-  <!-- Sidebar Overlay -->
   <div id="sidebarOverlay" class="sidebar-overlay"></div>
 
-  <!-- Sidebar -->
   <aside id="sidebar" class="sidebar">
     <ul class="sidebar-menu">
       <li>
         <a href="#" class="sidebar-link active" data-target="browse">
-          <!-- Compass Icon (Unique, not a book) -->
           <svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
           Browse Resources
         </a>
       </li>
       <li>
         <a href="#" class="sidebar-link" data-target="upload" id="uploadTab">
-          <!-- Cloud Upload Icon (Unique) -->
           <svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 16l-4-4-4 4M12 12v9"></path><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"></path></svg>
           Upload Resource
         </a>
       </li>
       <li>
         <a href="#" class="sidebar-link" data-target="curriculum">
-          <!-- Layers Icon (Unique) -->
           <svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
           Curriculum Hub
         </a>
@@ -144,7 +138,6 @@
         <div class="file-drop-zone" id="fileDropZone">
           <input type="file" id="fileInput" accept=".pdf,.doc,.docx,.ppt,.pptx,.txt" />
           <div class="file-drop-icon">
-            <!-- Upload Document Icon -->
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
           </div>
           <div class="file-drop-text" id="fileDropText"><strong>Click to browse</strong> or drag & drop</div>
@@ -155,14 +148,44 @@
       </div>
     </section>
 
-    <!-- CURRICULUM HUB -->
+    <!-- CURRICULUM HUB (NEW UI) -->
     <section id="curriculum" class="page-section">
       <div class="page-header">
         <h2>Curriculum Hub</h2>
-        <p>Your complete academic roadmap.</p>
+        <p>Your complete academic roadmap. Select a branch to begin.</p>
       </div>
-      <div class="placeholder-box">
-        <p>Select your Branch and Semester to view the syllabus (Coming in Step 3).</p>
+
+      <div class="curriculum-layout">
+        <!-- Sidebar for selections -->
+        <div class="curriculum-sidebar">
+          <h3>Branch</h3>
+          <select id="currBranch" class="curr-select">
+            <option value="">Select Branch</option>
+            <option>CSE</option><option>ECE</option>
+            <option>ME</option><option>CE</option>
+          </select>
+
+          <h3>Semester</h3>
+          <select id="currSemester" class="curr-select" disabled>
+            <option value="">Select Semester</option>
+            <option>1</option><option>2</option><option>3</option>
+            <option>4</option><option>5</option><option>6</option>
+            <option>7</option><option>8</option>
+          </select>
+
+          <h3>Subject</h3>
+          <select id="currSubject" class="curr-select" disabled>
+            <option value="">Select Subject</option>
+          </select>
+        </div>
+
+        <!-- Content area for units and topics -->
+        <div class="curriculum-content">
+          <div id="currPlaceholder" class="placeholder-box">
+            <p>Select a Branch, Semester, and Subject to view the syllabus.</p>
+          </div>
+          <div id="currUnits" class="units-container" style="display:none;"></div>
+        </div>
       </div>
     </section>
 
